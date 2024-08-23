@@ -1,0 +1,39 @@
+{
+    "schemaVersion": 1,
+    "id": "cart_engine",
+    "version": "${version}",
+    "name": "Cart Engine",
+    "description": "Cart Engine (placeholder description)",
+    "authors": [
+        "AshyBoxy"
+    ],
+    "contact": {
+        "homepage": "https://github.com/AshyBoxy/cart_engine",
+        "sources": "https://github.com/AshyBoxy/cart_engine"
+    },
+    "license": "CC-BY-NC-SA-4.0",
+    "icon": "assets/cart_engine/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "xyz.ashyboxy.mc.cart_engine.CartEngine"
+        ],
+        "client": [
+            "xyz.ashyboxy.mc.cart_engine.CartEngineClient"
+        ]
+    },
+    "mixins": [
+        "cart_engine.mixins.json",
+        {
+            "config": "cart_engine.client.mixins.json",
+            "environment": "client"
+        }
+    ],
+    "depends": {
+        "fabricloader": ">=0.15.11",
+        "minecraft": "~1.20.1",
+        "java": ">=17",
+        "fabric-api": "*"
+    },
+    "suggests": {}
+}
