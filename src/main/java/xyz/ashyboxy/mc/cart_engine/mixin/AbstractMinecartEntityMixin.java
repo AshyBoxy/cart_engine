@@ -50,6 +50,8 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     @Unique private static final double basisAccelerationPerTick = 0.021D;
 
     // TODO: mod support
+    // this could either be done using custom tags, or by enabling all modded rails by default
+    // that could potentially break them, for the same reason activator/detector rails or not included here
     @Unique private static boolean isEligibleFastRail(BlockState state) {
         return state.isOf(Blocks.RAIL) || (state.isOf(Blocks.POWERED_RAIL) && state.get(PoweredRailBlock.POWERED));
     }
@@ -110,6 +112,9 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     // TODO: is this needed?
+    // i think it ensures brake rails stop as fast as they do in vanilla?
+    // TODO: mod support
+    // something similar to this could be used to make the copper rail's rails as fast as they are for 8b/s minecarts
     @ModifyExpressionValue(method = "moveOnRail", at= @At(value = "INVOKE", target = "Lnet/minecraft/util/math/Vec3d;multiply(DDD)Lnet/minecraft/util/math/Vec3d;", ordinal = 0))
     private Vec3d slowdownBrakeRail(Vec3d original) {
         Vec3d velocity = this.getVelocity();
@@ -132,14 +137,6 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         double hVel = this.getVelocity().horizontalLength();
         args.set(0, hVel * MathHelper.clamp(MathHelper.floor(this.getX()) - pos.getX(), -1, 1));
         args.set(2, hVel * MathHelper.clamp(MathHelper.floor(this.getZ()) - pos.getZ(), -1, 1));
-    }
-
-    @WrapWithCondition(method = "moveOnRail", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle" +
-            "/AbstractMinecartEntity;setPosition(DDD)V", ordinal = 0))
-    private boolean moveFirstSetPosition(AbstractMinecartEntity instance, double x, double y, double z,
-                                         @Share("setPosVec") LocalRef<Vec3d> setPosVec) {
-        setPosVec.set(new Vec3d(x, y, z));
-        return false;
     }
 
     @WrapWithCondition(method = "moveOnRail", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle" +
@@ -173,6 +170,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         double horizontalMomentum = momentum.horizontalLength();
 
         // TODO: comprehend this
+        // "I wanted the kickstart feel to be like a curve" - audaki
         // TODO: Rewrite the comment/naming so it makes more sense (very confusing since TPS is 20 and we can only skip 1 block with current speeds)
         // Based on a 10 ticks per second basis spent per powered block we calculate a fair acceleration per tick
         // due to spending less ticks per powered block on higher speeds (and even skipping blocks)
@@ -193,6 +191,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         return (momentum.add(acceleration * (momentum.x / horizontalMomentum), 0.0D,
                 acceleration * (momentum.z / horizontalMomentum)));
     }
+
     // TODO: mod support
     // this could maybe be made to support other mods messing with this value
     // that'd be like (original * 16.8) for (0.02 * 16.8 = 0.336) which is what we use here
@@ -223,6 +222,8 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         // this doesn't properly take into account being in water
         // implement the above (this.getMaxSpeed() takes it into account) or divide the result of this by 2 (to match vanilla)
         // currently, when our momentum gets above 8 b/s then the max speed suddenly jumps from 4b/s to 34b/s
+        // see TestMixin
+        // technically, this issue is actually not taking into account that getMaxSpeed having a dynamic return value
         Supplier<Double> calculateMaxSpeedForThisTick = () -> {
             double fallback = this.getMaxSpeed();
 
@@ -316,6 +317,13 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         maxSpeedForThisTickShared.set(maxSpeedForThisTick);
     }
 
+    @WrapWithCondition(method = "moveOnRail", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle" +
+            "/AbstractMinecartEntity;setPosition(DDD)V", ordinal = 0))
+    private boolean moveFirstSetPosition(AbstractMinecartEntity instance, double x, double y, double z,
+                                         @Share("setPosVec") LocalRef<Vec3d> setPosVec) {
+        setPosVec.set(new Vec3d(x, y, z));
+        return false;
+    }
     // not low priority, we need to run this before linkart's modifiedMovement
     // TODO: refactor
     // could exitPos be calculated here instead? bearing in mind we have a different velocity here
