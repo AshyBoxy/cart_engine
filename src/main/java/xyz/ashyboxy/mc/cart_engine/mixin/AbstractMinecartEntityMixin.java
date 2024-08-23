@@ -189,6 +189,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                     1.0D + MathHelper.clamp(-0.45D * (distanceMovedHorizontally / tickMovementForBasisTps / basisTicksPerSecond), -0.7D, 2.0D);
             acceleration *= highspeedFactor;
         }
+//        CartEngine.LOGGER.info("acceleration is {} for a max speed of {} (x)", acceleration, momentum.getX() + (acceleration * momentum.getX() / horizontalMomentum));
         return (momentum.add(acceleration * (momentum.x / horizontalMomentum), 0.0D,
                 acceleration * (momentum.z / horizontalMomentum)));
     }
@@ -324,11 +325,11 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     private Vec3d doFirstSetPosition(Vec3d movement, @Local(argsOnly = true) BlockPos startPos, @Local RailShape railShape,
                                      @Share("exitPos") LocalRef<BlockPos> exitPos,
                                      @Share("setPosVec") LocalRef<Vec3d> setPosVec) {
-//        double extraY = 0;
-//        if (railShape.isAscending() && exitPos.get().getY() > startPos.getY())
-//            // TODO: why is this rounded down?
-//            extraY = (int) (0.5 + movement.horizontalLength());
-//        this.setPosition(setPosVec.get().add(0, extraY, 0));
+        double extraY = 0;
+        if (railShape.isAscending() && exitPos.get().getY() > startPos.getY())
+            // TODO: why is this rounded down?
+            extraY = (int) (0.5 + movement.horizontalLength());
+        this.setPosition(setPosVec.get().add(0, extraY, 0));
         return movement;
     }
 
@@ -339,14 +340,14 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         }
 
         // low priority, we want the actual final used value later
-//        @ModifyArg(method = "moveOnRail", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle" +
-//                "/AbstractMinecartEntity;move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V"),
-//                index = 1)
-//        private Vec3d catchMovement(Vec3d movement,
-//                        @Share(namespace = CartEngine.MOD_ID, value = "movement") LocalRef<Vec3d> movementShare) {
-//            // needed in modifyPoweredRailAcceleration
-//            movementShare.set(movement);
-//            return movement;
-//        }
+        @ModifyArg(method = "moveOnRail", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/vehicle" +
+                "/AbstractMinecartEntity;move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V"),
+                index = 1)
+        private Vec3d catchMovement(Vec3d movement,
+                        @Share(namespace = CartEngine.MOD_ID, value = "movement") LocalRef<Vec3d> movementShare) {
+            // needed in modifyPoweredRailAcceleration
+            movementShare.set(movement);
+            return movement;
+        }
     }
 }

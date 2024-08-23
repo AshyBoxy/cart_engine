@@ -51,14 +51,15 @@ dependencies {
 	// fabric loader 0.15.11 ships mixinextras 0.3.5, @share namespaces were added in 0.4.0
 	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.4.1")))
 
-//	modImplementation "maven.modrinth:thecopperrail:0.9.1"
+	modImplementation "maven.modrinth:thecopperrail:0.9.1"
+	// there is an obscure mixin bug that i need to workaround to add linkart back
 //	modCompileOnly "maven.modrinth:linkart:5.4.4-1.20.2-build.133"
-	modRuntimeOnly "maven.modrinth:linkart:5.4.4-1.20.2-build.133"
+//	modRuntimeOnly "maven.modrinth:linkart:5.4.4-1.20.2-build.133"
 	// using a newer version doesn't fix the issue, so use this version since it's what linkart embeds in its release
 //	modRuntimeOnly "me.melontini:dark-matter:4.0.0-1.20.1-build.481"
 //	modRuntimeOnly "me.melontini:dark-matter:4.1.0-1.20.1-build.86"
 	// linkart only uses the base dark matter module
-	modRuntimeOnly "me.melontini:dark-matter-base:4.0.0-1.20.1-build.481"
+//	modRuntimeOnly "me.melontini:dark-matter-base:4.0.0-1.20.1-build.481"
 }
 
 processResources {

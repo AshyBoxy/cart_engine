@@ -3,7 +3,9 @@
 	"package": "xyz.ashyboxy.mc.cart_engine.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"MinimalAbstractMinecartEntityMixin"
+		"AbstractMinecartEntityMixin",
+		"AbstractMinecartEntityMixin$LowPriority",
+		"TestMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
